@@ -1,528 +1,669 @@
-local UGINITY = {}
-
+-- UGINITY PROFESSIONAL UI - ULTIMATE EDITION
+local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
 
--- Animation Properties
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-local hoverTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
--- Main GUI Setup
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "UGINITY_HUB"
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.ResetOnSpawn = false
-
--- Floating Circle Button
-local openBtn = Instance.new("ImageButton", screenGui)
-openBtn.Size = UDim2.new(0, 70, 0, 70)
-openBtn.Position = UDim2.new(0, 30, 0.5, -35)
-openBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-openBtn.BorderSizePixel = 0
-openBtn.Image = ""
-openBtn.Draggable = true
-openBtn.Active = true
-openBtn.ZIndex = 1000
-
--- Circle corner radius
-local btnCorner = Instance.new("UICorner", openBtn)
-btnCorner.CornerRadius = UDim.new(1, 0)
-
--- Button gradient
-local gradient = Instance.new("UIGradient", openBtn)
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+-- ULTIMATE CONFIGURATION
+local THEMES = {
+    ["Midnight Abyss"] = {
+        background = Color3.fromRGB(8, 8, 15),
+        panel = Color3.fromRGB(18, 18, 28),
+        accent = Color3.fromRGB(147, 51, 234),
+        secondary = Color3.fromRGB(88, 28, 135),
+        text = Color3.fromRGB(255, 255, 255),
+        glow = Color3.fromRGB(147, 51, 234)
+    },
+    ["Crimson Nightmare"] = {
+        background = Color3.fromRGB(15, 5, 5),
+        panel = Color3.fromRGB(30, 10, 10),
+        accent = Color3.fromRGB(220, 20, 60),
+        secondary = Color3.fromRGB(139, 0, 0),
+        text = Color3.fromRGB(255, 240, 240),
+        glow = Color3.fromRGB(255, 69, 0)
+    },
+    ["Cyber Genesis"] = {
+        background = Color3.fromRGB(0, 8, 15),
+        panel = Color3.fromRGB(0, 18, 30),
+        accent = Color3.fromRGB(0, 255, 255),
+        secondary = Color3.fromRGB(0, 191, 255),
+        text = Color3.fromRGB(224, 255, 255),
+        glow = Color3.fromRGB(0, 255, 255)
+    },
+    ["Toxic Venom"] = {
+        background = Color3.fromRGB(5, 15, 0),
+        panel = Color3.fromRGB(10, 25, 5),
+        accent = Color3.fromRGB(50, 205, 50),
+        secondary = Color3.fromRGB(34, 139, 34),
+        text = Color3.fromRGB(240, 255, 240),
+        glow = Color3.fromRGB(127, 255, 0)
+    },
+    ["Royal Gold"] = {
+        background = Color3.fromRGB(15, 10, 0),
+        panel = Color3.fromRGB(25, 20, 5),
+        accent = Color3.fromRGB(255, 215, 0),
+        secondary = Color3.fromRGB(218, 165, 32),
+        text = Color3.fromRGB(255, 248, 220),
+        glow = Color3.fromRGB(255, 223, 0)
+    },
+    ["Arctic Storm"] = {
+        background = Color3.fromRGB(240, 248, 255),
+        panel = Color3.fromRGB(248, 248, 255),
+        accent = Color3.fromRGB(70, 130, 180),
+        secondary = Color3.fromRGB(100, 149, 237),
+        text = Color3.fromRGB(25, 25, 112),
+        glow = Color3.fromRGB(135, 206, 250)
+    }
 }
-gradient.Rotation = 45
 
--- Button stroke
-local stroke = Instance.new("UIStroke", openBtn)
-stroke.Color = Color3.fromRGB(60, 60, 60)
-stroke.Thickness = 2
-stroke.Transparency = 0.3
-
--- Button text
-local btnText = Instance.new("TextLabel", openBtn)
-btnText.Size = UDim2.new(1, 0, 1, 0)
-btnText.Text = "UGINITY"
-btnText.TextColor3 = Color3.fromRGB(255, 255, 255)
-btnText.TextScaled = true
-btnText.Font = Enum.Font.GothamBold
-btnText.BackgroundTransparency = 1
-btnText.TextStrokeTransparency = 0.5
-btnText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-
--- Button glow effect
-local shadow = Instance.new("ImageLabel", openBtn)
-shadow.Size = UDim2.new(1, 20, 1, 20)
-shadow.Position = UDim2.new(0, -10, 0, -10)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-shadow.ImageTransparency = 0.7
-shadow.ZIndex = openBtn.ZIndex - 1
-
--- Main UI Frame
-local Main = Instance.new("Frame", screenGui)
-Main.Size = UDim2.new(0, 520, 0, 340)
-Main.Position = UDim2.new(0.5, -260, 0.5, -170)
-Main.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-Main.BorderSizePixel = 0
-Main.Visible = false
-Main.ClipsDescendants = true
-Main.ZIndex = 10
-Main.Active = true
-Main.Draggable = true
-
--- Main frame corner
-local mainCorner = Instance.new("UICorner", Main)
-mainCorner.CornerRadius = UDim.new(0, 12)
-
--- Main frame gradient
-local mainGradient = Instance.new("UIGradient", Main)
-mainGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 22, 22)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+local TEXT_COLORS = {
+    ["Phantom White"] = Color3.fromRGB(255, 255, 255),
+    ["Blood Red"] = Color3.fromRGB(255, 20, 20),
+    ["Electric Blue"] = Color3.fromRGB(30, 144, 255),
+    ["Toxic Green"] = Color3.fromRGB(50, 205, 50),
+    ["Royal Purple"] = Color3.fromRGB(138, 43, 226),
+    ["Molten Gold"] = Color3.fromRGB(255, 215, 0),
+    ["Neon Cyan"] = Color3.fromRGB(0, 255, 255),
+    ["Hot Pink"] = Color3.fromRGB(255, 20, 147),
+    ["Shadow Black"] = Color3.fromRGB(20, 20, 20),
+    ["Plasma Orange"] = Color3.fromRGB(255, 69, 0)
 }
-mainGradient.Rotation = 135
 
--- Main frame stroke
-local mainStroke = Instance.new("UIStroke", Main)
-mainStroke.Color = Color3.fromRGB(40, 40, 40)
-mainStroke.Thickness = 1
+-- Current settings
+local currentTheme = "Midnight Abyss"
+local currentTextColor = "Phantom White"
+local currentTab = "Welcome"
 
--- Top bar
-local topBar = Instance.new("Frame", Main)
-topBar.Size = UDim2.new(1, 0, 0, 35)
-topBar.Position = UDim2.new(0, 0, 0, 0)
-topBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-topBar.BorderSizePixel = 0
+-- Create ScreenGui with Good effects
+local gui = Instance.new("ScreenGui")
+gui.Name = "UGINITY_ULTIMATE"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player.PlayerGui
 
-local topBarCorner = Instance.new("UICorner", topBar)
-topBarCorner.CornerRadius = UDim.new(0, 12)
+-- Background blur effect
+local backgroundBlur = Instance.new("Frame")
+backgroundBlur.Size = UDim2.new(1, 0, 1, 0)
+backgroundBlur.Position = UDim2.new(0, 0, 0, 0)
+backgroundBlur.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+backgroundBlur.BackgroundTransparency = 0.3
+backgroundBlur.BorderSizePixel = 0
+backgroundBlur.Parent = gui
 
--- Title
-local title = Instance.new("TextLabel", topBar)
-title.Size = UDim2.new(1, -80, 1, 0)
-title.Position = UDim2.new(0, 15, 0, 0)
-title.Text = "✨ UGINITY HUB"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
+-- Animated background particles
+local particleContainer = Instance.new("Frame")
+particleContainer.Size = UDim2.new(1, 0, 1, 0)
+particleContainer.BackgroundTransparency = 1
+particleContainer.Parent = gui
+
+-- Create premium particles
+local particles = {}
+for i = 1, 50 do
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, math.random(2, 8), 0, math.random(2, 8))
+    particle.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    particle.BackgroundColor3 = THEMES[currentTheme].glow
+    particle.BackgroundTransparency = math.random(70, 90) / 100
+    particle.BorderSizePixel = 0
+    particle.Parent = particleContainer
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = particle
+    
+    table.insert(particles, particle)
+end
+
+-- Main Container with glassmorphism
+local mainContainer = Instance.new("Frame")
+mainContainer.Size = UDim2.new(0, 900, 0, 700)
+mainContainer.Position = UDim2.new(0.5, -450, 0.5, -350)
+mainContainer.BackgroundColor3 = THEMES[currentTheme].background
+mainContainer.BackgroundTransparency = 0.1
+mainContainer.BorderSizePixel = 0
+mainContainer.Parent = gui
+
+-- Premium glass effect
+local glassCorner = Instance.new("UICorner")
+glassCorner.CornerRadius = UDim.new(0, 20)
+glassCorner.Parent = mainContainer
+
+local glassStroke = Instance.new("UIStroke")
+glassStroke.Color = THEMES[currentTheme].accent
+glassStroke.Thickness = 2
+glassStroke.Transparency = 0.5
+glassStroke.Parent = mainContainer
+
+-- Animated glow effect
+local glowFrame = Instance.new("Frame")
+glowFrame.Size = UDim2.new(1, 20, 1, 20)
+glowFrame.Position = UDim2.new(0, -10, 0, -10)
+glowFrame.BackgroundColor3 = THEMES[currentTheme].glow
+glowFrame.BackgroundTransparency = 0.8
+glowFrame.BorderSizePixel = 0
+glowFrame.ZIndex = mainContainer.ZIndex - 1
+glowFrame.Parent = gui
+
+local glowCorner = Instance.new("UICorner")
+glowCorner.CornerRadius = UDim.new(0, 25)
+glowCorner.Parent = glowFrame
+
+-- Premium Header
+local headerPanel = Instance.new("Frame")
+headerPanel.Size = UDim2.new(1, 0, 0, 100)
+headerPanel.Position = UDim2.new(0, 0, 0, 0)
+headerPanel.BackgroundTransparency = 1
+headerPanel.Parent = mainContainer
+
+-- Animated title with premium effects
+local titleContainer = Instance.new("Frame")
+titleContainer.Size = UDim2.new(0, 600, 0, 80)
+titleContainer.Position = UDim2.new(0.5, -300, 0.5, -40)
+titleContainer.BackgroundTransparency = 1
+titleContainer.Parent = headerPanel
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 1, 0)
 title.BackgroundTransparency = 1
-title.TextXAlignment = Enum.TextXAlignment.Left
+title.Text = "⚡ UGINITY ULTIMATE ⚡"
+title.Font = Enum.Font.GothamBold
+title.TextColor3 = TEXT_COLORS[currentTextColor]
+title.TextSize = 36
+title.TextStrokeTransparency = 0
+title.TextStrokeColor3 = THEMES[currentTheme].background
+title.Parent = titleContainer
 
--- Close button
-local closeBtn = Instance.new("TextButton", topBar)
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -35, 0, 2.5)
-closeBtn.Text = "×"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 18
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-closeBtn.BorderSizePixel = 0
+-- Premium glow text effect
+local glowText1 = title:Clone()
+glowText1.Position = UDim2.new(0, 2, 0, 2)
+glowText1.TextColor3 = THEMES[currentTheme].glow
+glowText1.TextTransparency = 0.5
+glowText1.ZIndex = title.ZIndex - 1
+glowText1.Parent = titleContainer
 
-local closeBtnCorner = Instance.new("UICorner", closeBtn)
-closeBtnCorner.CornerRadius = UDim.new(0, 6)
+local glowText2 = title:Clone()
+glowText2.Position = UDim2.new(0, -2, 0, -2)
+glowText2.TextColor3 = THEMES[currentTheme].glow
+glowText2.TextTransparency = 0.7
+glowText2.ZIndex = title.ZIndex - 2
+glowText2.Parent = titleContainer
 
--- Minimize button
-local minBtn = Instance.new("TextButton", topBar)
-minBtn.Size = UDim2.new(0, 30, 0, 30)
-minBtn.Position = UDim2.new(1, -70, 0, 2.5)
-minBtn.Text = "−"
-minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-minBtn.Font = Enum.Font.GothamBold
-minBtn.TextSize = 18
-minBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-minBtn.BorderSizePixel = 0
+-- Tab Navigation with premium styling
+local tabPanel = Instance.new("Frame")
+tabPanel.Size = UDim2.new(1, -40, 0, 60)
+tabPanel.Position = UDim2.new(0, 20, 0, 110)
+tabPanel.BackgroundColor3 = THEMES[currentTheme].panel
+tabPanel.BackgroundTransparency = 0.2
+tabPanel.BorderSizePixel = 0
+tabPanel.Parent = mainContainer
 
-local minBtnCorner = Instance.new("UICorner", minBtn)
-minBtnCorner.CornerRadius = UDim.new(0, 6)
+local tabCorner = Instance.new("UICorner")
+tabCorner.CornerRadius = UDim.new(0, 15)
+tabCorner.Parent = tabPanel
 
--- Sidebar (Tabs)
-local TabFrame = Instance.new("Frame", Main)
-TabFrame.Size = UDim2.new(0, 130, 1, -45)
-TabFrame.Position = UDim2.new(0, 10, 0, 40)
-TabFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-TabFrame.BorderSizePixel = 0
+local tabStroke = Instance.new("UIStroke")
+tabStroke.Color = THEMES[currentTheme].accent
+tabStroke.Thickness = 1
+tabStroke.Transparency = 0.7
+tabStroke.Parent = tabPanel
 
-local tabFrameCorner = Instance.new("UICorner", TabFrame)
-tabFrameCorner.CornerRadius = UDim.new(0, 8)
+local tabs = {"Welcome", "Settings", "About"}
+local tabButtons = {}
 
-local tabFrameStroke = Instance.new("UIStroke", TabFrame)
-tabFrameStroke.Color = Color3.fromRGB(35, 35, 35)
-tabFrameStroke.Thickness = 1
-
-local TabList = Instance.new("UIListLayout", TabFrame)
-TabList.SortOrder = Enum.SortOrder.LayoutOrder
-TabList.Padding = UDim.new(0, 6)
-TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-local tabPadding = Instance.new("UIPadding", TabFrame)
-tabPadding.PaddingTop = UDim.new(0, 10)
-tabPadding.PaddingLeft = UDim.new(0, 8)
-tabPadding.PaddingRight = UDim.new(0, 8)
+for i, tabName in ipairs(tabs) do
+    local tabButton = Instance.new("TextButton")
+    tabButton.Size = UDim2.new(0, 180, 0, 40)
+    tabButton.Position = UDim2.new(0, (i-1) * 190 + 30, 0, 10)
+    tabButton.BackgroundColor3 = currentTab == tabName and THEMES[currentTheme].accent or THEMES[currentTheme].panel
+    tabButton.BackgroundTransparency = currentTab == tabName and 0.2 or 0.8
+    tabButton.BorderSizePixel = 0
+    tabButton.Text = tabName
+    tabButton.Font = Enum.Font.GothamBold
+    tabButton.TextColor3 = THEMES[currentTheme].text
+    tabButton.TextSize = 16
+    tabButton.Parent = tabPanel
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 10)
+    btnCorner.Parent = tabButton
+    
+    if currentTab == tabName then
+        local btnStroke = Instance.new("UIStroke")
+        btnStroke.Color = THEMES[currentTheme].accent
+        btnStroke.Thickness = 2
+        btnStroke.Parent = tabButton
+    end
+    
+    tabButtons[tabName] = tabButton
+end
 
 -- Content Area
-local ContentFrame = Instance.new("Frame", Main)
-ContentFrame.Size = UDim2.new(1, -160, 1, -55)
-ContentFrame.Position = UDim2.new(0, 150, 0, 45)
-ContentFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
-ContentFrame.BorderSizePixel = 0
-ContentFrame.ClipsDescendants = true
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, -40, 1, -210)
+contentArea.Position = UDim2.new(0, 20, 0, 180)
+contentArea.BackgroundTransparency = 1
+contentArea.Parent = mainContainer
 
-local contentCorner = Instance.new("UICorner", ContentFrame)
-contentCorner.CornerRadius = UDim.new(0, 8)
+-- Welcome Tab Content
+local welcomeContent = Instance.new("Frame")
+welcomeContent.Size = UDim2.new(1, 0, 1, 0)
+welcomeContent.BackgroundTransparency = 1
+welcomeContent.Visible = currentTab == "Welcome"
+welcomeContent.Parent = contentArea
 
-local contentStroke = Instance.new("UIStroke", ContentFrame)
-contentStroke.Color = Color3.fromRGB(35, 35, 35)
-contentStroke.Thickness = 1
+-- Premium UGINITY Display
+local uginityDisplay = Instance.new("Frame")
+uginityDisplay.Size = UDim2.new(1, 0, 0, 300)
+uginityDisplay.Position = UDim2.new(0, 0, 0.5, -150)
+uginityDisplay.BackgroundTransparency = 1
+uginityDisplay.Parent = welcomeContent
 
--- Status bar
-local statusBar = Instance.new("Frame", Main)
-statusBar.Size = UDim2.new(1, 0, 0, 8)
-statusBar.Position = UDim2.new(0, 0, 1, -8)
-statusBar.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-statusBar.BorderSizePixel = 0
+-- Main UGINITY text with extreme effects
+local mainText = Instance.new("TextLabel")
+mainText.Size = UDim2.new(1, 0, 0, 120)
+mainText.Position = UDim2.new(0, 0, 0.5, -60)
+mainText.BackgroundTransparency = 1
+mainText.Text = "🌟 UGINITY UNLEASHED 🌟"
+mainText.Font = Enum.Font.GothamBold
+mainText.TextColor3 = TEXT_COLORS[currentTextColor]
+mainText.TextSize = 48
+mainText.TextStrokeTransparency = 0
+mainText.TextStrokeColor3 = THEMES[currentTheme].background
+mainText.Parent = uginityDisplay
 
-local statusCorner = Instance.new("UICorner", statusBar)
-statusCorner.CornerRadius = UDim.new(0, 12)
-
--- Animations
-local function animateHover(element, hoverColor, normalColor)
-    element.MouseEnter:Connect(function()
-        local tween = TweenService:Create(element, hoverTweenInfo, {BackgroundColor3 = hoverColor})
-        tween:Play()
-    end)
-    
-    element.MouseLeave:Connect(function()
-        local tween = TweenService:Create(element, hoverTweenInfo, {BackgroundColor3 = normalColor})
-        tween:Play()
-    end)
+-- Multiple glow layers for extreme effect
+for i = 1, 5 do
+    local glow = mainText:Clone()
+    glow.Position = UDim2.new(0, math.random(-3, 3), 0, math.random(-3, 3))
+    glow.TextColor3 = THEMES[currentTheme].glow
+    glow.TextTransparency = 0.3 + (i * 0.1)
+    glow.TextStrokeTransparency = 0.5 + (i * 0.1)
+    glow.ZIndex = mainText.ZIndex - i
+    glow.Parent = uginityDisplay
 end
 
--- Button hover animations
-animateHover(openBtn, Color3.fromRGB(25, 25, 25), Color3.fromRGB(0, 0, 0))
-animateHover(closeBtn, Color3.fromRGB(220, 70, 70), Color3.fromRGB(200, 50, 50))
-animateHover(minBtn, Color3.fromRGB(70, 70, 70), Color3.fromRGB(50, 50, 50))
+-- Settings Tab Content - PREMIUM EDITION
+local settingsContent = Instance.new("Frame")
+settingsContent.Size = UDim2.new(1, 0, 1, 0)
+settingsContent.BackgroundTransparency = 1
+settingsContent.Visible = currentTab == "Settings"
+settingsContent.Parent = contentArea
 
--- Tab Creation
-local activeTab = nil
-function UGINITY:CreateTab(name, icon)
-    local tabBtn = Instance.new("TextButton", TabFrame)
-    tabBtn.Text = (icon or "📁") .. " " .. name
-    tabBtn.Size = UDim2.new(1, 0, 0, 40)
-    tabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    tabBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    tabBtn.Font = Enum.Font.Gotham
-    tabBtn.TextSize = 13
-    tabBtn.BorderSizePixel = 0
+-- Settings Title
+local settingsTitle = Instance.new("TextLabel")
+settingsTitle.Size = UDim2.new(1, 0, 0, 50)
+settingsTitle.Position = UDim2.new(0, 0, 0, 0)
+settingsTitle.BackgroundTransparency = 1
+settingsTitle.Text = "⚙️ ULTIMATE SETTINGS ⚙️"
+settingsTitle.Font = Enum.Font.GothamBold
+settingsTitle.TextColor3 = THEMES[currentTheme].accent
+settingsTitle.TextSize = 24
+settingsTitle.Parent = settingsContent
+
+-- Developer Credits
+local devCredits = Instance.new("Frame")
+devCredits.Size = UDim2.new(1, 0, 0, 80)
+devCredits.Position = UDim2.new(0, 0, 0, 60)
+devCredits.BackgroundColor3 = THEMES[currentTheme].panel
+devCredits.BackgroundTransparency = 0.3
+devCredits.BorderSizePixel = 0
+devCredits.Parent = settingsContent
+
+local devCorner = Instance.new("UICorner")
+devCorner.CornerRadius = UDim.new(0, 12)
+devCorner.Parent = devCredits
+
+local devStroke = Instance.new("UIStroke")
+devStroke.Color = THEMES[currentTheme].accent
+devStroke.Thickness = 1
+devStroke.Transparency = 0.5
+devStroke.Parent = devCredits
+
+local devText = Instance.new("TextLabel")
+devText.Size = UDim2.new(1, -20, 1, 0)
+devText.Position = UDim2.new(0, 10, 0, 0)
+devText.BackgroundTransparency = 1
+devText.Text = "🔥 Developer Themes and Textcolor-Shizo | k1ngBloodit 🔥\n💀 ULTIMATE EDITION - UNMATCHED POWER 💀"
+devText.Font = Enum.Font.GothamBold
+devText.TextColor3 = THEMES[currentTheme].text
+devText.TextSize = 16
+devText.TextWrapped = true
+devText.Parent = devCredits
+
+-- Theme Selection Panel
+local themePanel = Instance.new("Frame")
+themePanel.Size = UDim2.new(0.48, 0, 0, 280)
+themePanel.Position = UDim2.new(0, 0, 0, 160)
+themePanel.BackgroundColor3 = THEMES[currentTheme].panel
+themePanel.BackgroundTransparency = 0.2
+themePanel.BorderSizePixel = 0
+themePanel.Parent = settingsContent
+
+local themePanelCorner = Instance.new("UICorner")
+themePanelCorner.CornerRadius = UDim.new(0, 12)
+themePanelCorner.Parent = themePanel
+
+local themePanelStroke = Instance.new("UIStroke")
+themePanelStroke.Color = THEMES[currentTheme].accent
+themePanelStroke.Thickness = 2
+themePanelStroke.Parent = themePanel
+
+local themeLabel = Instance.new("TextLabel")
+themeLabel.Size = UDim2.new(1, 0, 0, 40)
+themeLabel.Position = UDim2.new(0, 0, 0, 10)
+themeLabel.BackgroundTransparency = 1
+themeLabel.Text = "🎨 PREMIUM THEMES"
+themeLabel.Font = Enum.Font.GothamBold
+themeLabel.TextColor3 = THEMES[currentTheme].accent
+themeLabel.TextSize = 18
+themeLabel.Parent = themePanel
+
+-- Theme buttons
+local themeY = 60
+for themeName, themeData in pairs(THEMES) do
+    local themeButton = Instance.new("TextButton")
+    themeButton.Size = UDim2.new(1, -20, 0, 30)
+    themeButton.Position = UDim2.new(0, 10, 0, themeY)
+    themeButton.BackgroundColor3 = currentTheme == themeName and themeData.accent or themeData.panel
+    themeButton.BackgroundTransparency = currentTheme == themeName and 0.2 or 0.5
+    themeButton.BorderSizePixel = 0
+    themeButton.Text = themeName
+    themeButton.Font = Enum.Font.GothamSemibold
+    themeButton.TextColor3 = themeData.text
+    themeButton.TextSize = 14
+    themeButton.Parent = themePanel
     
-    local tabCorner = Instance.new("UICorner", tabBtn)
-    tabCorner.CornerRadius = UDim.new(0, 6)
+    local themeButtonCorner = Instance.new("UICorner")
+    themeButtonCorner.CornerRadius = UDim.new(0, 8)
+    themeButtonCorner.Parent = themeButton
     
-    local tabStroke = Instance.new("UIStroke", tabBtn)
-    tabStroke.Color = Color3.fromRGB(45, 45, 45)
-    tabStroke.Thickness = 1
-    tabStroke.Transparency = 0.5
-
-    local page = Instance.new("ScrollingFrame", ContentFrame)
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    page.BackgroundTransparency = 1
-    page.ScrollBarThickness = 8
-    page.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
-    page.Visible = false
-    page.BorderSizePixel = 0
-
-    local layout = Instance.new("UIListLayout", page)
-    layout.Padding = UDim.new(0, 8)
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-    local pagePadding = Instance.new("UIPadding", page)
-    pagePadding.PaddingTop = UDim.new(0, 10)
-    pagePadding.PaddingLeft = UDim.new(0, 10)
-    pagePadding.PaddingRight = UDim.new(0, 10)
-
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        page.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
+    if currentTheme == themeName then
+        local selectedStroke = Instance.new("UIStroke")
+        selectedStroke.Color = themeData.accent
+        selectedStroke.Thickness = 2
+        selectedStroke.Parent = themeButton
+    end
+    
+    themeButton.MouseButton1Click:Connect(function()
+        currentTheme = themeName
+        updateTheme()
     end)
+    
+    themeY = themeY + 35
+end
 
-    -- Tab hover effect
-    animateHover(tabBtn, Color3.fromRGB(45, 45, 45), Color3.fromRGB(30, 30, 30))
+-- Text Color Selection Panel
+local colorPanel = Instance.new("Frame")
+colorPanel.Size = UDim2.new(0.48, 0, 0, 280)
+colorPanel.Position = UDim2.new(0.52, 0, 0, 160)
+colorPanel.BackgroundColor3 = THEMES[currentTheme].panel
+colorPanel.BackgroundTransparency = 0.2
+colorPanel.BorderSizePixel = 0
+colorPanel.Parent = settingsContent
 
-    tabBtn.MouseButton1Click:Connect(function()
-        -- Deactivate previous tab
-        if activeTab then
-            local prevTween = TweenService:Create(activeTab.button, tweenInfo, {
-                BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-                TextColor3 = Color3.fromRGB(200, 200, 200)
-            })
-            prevTween:Play()
-            activeTab.page.Visible = false
+local colorPanelCorner = Instance.new("UICorner")
+colorPanelCorner.CornerRadius = UDim.new(0, 12)
+colorPanelCorner.Parent = colorPanel
+
+local colorPanelStroke = Instance.new("UIStroke")
+colorPanelStroke.Color = THEMES[currentTheme].accent
+colorPanelStroke.Thickness = 2
+colorPanelStroke.Parent = colorPanel
+
+local colorLabel = Instance.new("TextLabel")
+colorLabel.Size = UDim2.new(1, 0, 0, 40)
+colorLabel.Position = UDim2.new(0, 0, 0, 10)
+colorLabel.BackgroundTransparency = 1
+colorLabel.Text = "🌈 TEXT COLORS"
+colorLabel.Font = Enum.Font.GothamBold
+colorLabel.TextColor3 = THEMES[currentTheme].accent
+colorLabel.TextSize = 18
+colorLabel.Parent = colorPanel
+
+-- Color buttons
+local colorY = 60
+for colorName, colorValue in pairs(TEXT_COLORS) do
+    local colorButton = Instance.new("TextButton")
+    colorButton.Size = UDim2.new(1, -20, 0, 30)
+    colorButton.Position = UDim2.new(0, 10, 0, colorY)
+    colorButton.BackgroundColor3 = currentTextColor == colorName and colorValue or THEMES[currentTheme].panel
+    colorButton.BackgroundTransparency = currentTextColor == colorName and 0.2 or 0.5
+    colorButton.BorderSizePixel = 0
+    colorButton.Text = colorName
+    colorButton.Font = Enum.Font.GothamSemibold
+    colorButton.TextColor3 = colorValue
+    colorButton.TextSize = 14
+    colorButton.Parent = colorPanel
+    
+    local colorButtonCorner = Instance.new("UICorner")
+    colorButtonCorner.CornerRadius = UDim.new(0, 8)
+    colorButtonCorner.Parent = colorButton
+    
+    if currentTextColor == colorName then
+        local selectedStroke = Instance.new("UIStroke")
+        selectedStroke.Color = colorValue
+        selectedStroke.Thickness = 2
+        selectedStroke.Parent = colorButton
+    end
+    
+    colorButton.MouseButton1Click:Connect(function()
+        currentTextColor = colorName
+        updateTextColor()
+    end)
+    
+    colorY = colorY + 25
+end
+
+-- About Tab Content
+local aboutContent = Instance.new("Frame")
+aboutContent.Size = UDim2.new(1, 0, 1, 0)
+aboutContent.BackgroundTransparency = 1
+aboutContent.Visible = currentTab == "About"
+aboutContent.Parent = contentArea
+
+local aboutPanel = Instance.new("Frame")
+aboutPanel.Size = UDim2.new(1, 0, 1, 0)
+aboutPanel.BackgroundColor3 = THEMES[currentTheme].panel
+aboutPanel.BackgroundTransparency = 0.3
+aboutPanel.BorderSizePixel = 0
+aboutPanel.Parent = aboutContent
+
+local aboutCorner = Instance.new("UICorner")
+aboutCorner.CornerRadius = UDim.new(0, 15)
+aboutCorner.Parent = aboutPanel
+
+local aboutText = Instance.new("TextLabel")
+aboutText.Size = UDim2.new(1, -40, 1, -40)
+aboutText.Position = UDim2.new(0, 20, 0, 20)
+aboutText.BackgroundTransparency = 1
+aboutText.Text = [[
+💀 UGINITY ULTIMATE EDITION 💀
+
+🔥 THE MOST POWERFUL UI EVER CREATED 🔥
+
+⚡ Features:
+• 6 Premium Themes with Glassmorphism
+• 10 Epic Text Colors
+• Smooth Tab Animations
+• Particle Effects
+• Glow Effects
+• Professional Design
+
+👑 Created by: k1ngBloodit
+🎨 Theme System: Shizo Engine
+💫 Effects: Ultimate Graphics
+
+🌟 EXPERIENCE THE POWER 🌟
+]]
+aboutText.Font = Enum.Font.GothamBold
+aboutText.TextColor3 = THEMES[currentTheme].text
+aboutText.TextSize = 16
+aboutText.TextWrapped = true
+aboutText.TextYAlignment = Enum.TextYAlignment.Top
+aboutText.Parent = aboutPanel
+
+-- Functions
+function updateTheme()
+    local theme = THEMES[currentTheme]
+    
+    -- Update main elements
+    mainContainer.BackgroundColor3 = theme.background
+    glowFrame.BackgroundColor3 = theme.glow
+    glassStroke.Color = theme.accent
+    
+    -- Update header
+    title.TextColor3 = TEXT_COLORS[currentTextColor]
+    glowText1.TextColor3 = theme.glow
+    glowText2.TextColor3 = theme.glow
+    
+    -- Update tabs
+    tabPanel.BackgroundColor3 = theme.panel
+    tabStroke.Color = theme.accent
+    
+    for tabName, button in pairs(tabButtons) do
+        button.TextColor3 = theme.text
+        if currentTab == tabName then
+            button.BackgroundColor3 = theme.accent
+            button.BackgroundTransparency = 0.2
+        else
+            button.BackgroundColor3 = theme.panel
+            button.BackgroundTransparency = 0.8
         end
-        
-        -- Activate current tab
-        local activeTween = TweenService:Create(tabBtn, tweenInfo, {
-            BackgroundColor3 = Color3.fromRGB(0, 120, 255),
-            TextColor3 = Color3.fromRGB(255, 255, 255)
-        })
-        activeTween:Play()
-        
-        page.Visible = true
-        activeTab = {button = tabBtn, page = page}
-    end)
-
-    return page
-end
-
--- ELEMENT: Label
-function UGINITY:CreateLabel(tab, text, color)
-    local frame = Instance.new("Frame", tab)
-    frame.Size = UDim2.new(1, -20, 0, 30)
-    frame.BackgroundTransparency = 1
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(1, 0, 1, 0)
-    lbl.Text = text
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = color or Color3.fromRGB(220, 220, 220)
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    end
     
-    return lbl
-end
-
--- ELEMENT: Button
-function UGINITY:CreateButton(tab, text, callback)
-    local btn = Instance.new("TextButton", tab)
-    btn.Text = text
-    btn.Size = UDim2.new(1, -20, 0, 38)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.BorderSizePixel = 0
+    -- Update settings
+    settingsTitle.TextColor3 = theme.accent
+    devText.TextColor3 = theme.text
+    devCredits.BackgroundColor3 = theme.panel
+    devStroke.Color = theme.accent
+    themeLabel.TextColor3 = theme.accent
+    colorLabel.TextColor3 = theme.accent
+    themePanel.BackgroundColor3 = theme.panel
+    colorPanel.BackgroundColor3 = theme.panel
+    themePanelStroke.Color = theme.accent
+    colorPanelStroke.Color = theme.accent
     
-    local btnCorner = Instance.new("UICorner", btn)
-    btnCorner.CornerRadius = UDim.new(0, 6)
+    -- Update about
+    aboutText.TextColor3 = theme.text
+    aboutPanel.BackgroundColor3 = theme.panel
     
-    local btnStroke = Instance.new("UIStroke", btn)
-    btnStroke.Color = Color3.fromRGB(60, 60, 60)
-    btnStroke.Thickness = 1
-    
-    animateHover(btn, Color3.fromRGB(60, 60, 60), Color3.fromRGB(40, 40, 40))
-    
-    btn.MouseButton1Click:Connect(function()
-        -- Click animation
-        local clickTween = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -22, 0, 36)})
-        clickTween:Play()
-        clickTween.Completed:Connect(function()
-            local backTween = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -20, 0, 38)})
-            backTween:Play()
-        end)
-        pcall(callback)
-    end)
-    
-    return btn
-end
-
--- ELEMENT: Toggle
-function UGINITY:CreateToggle(tab, text, default, callback)
-    local toggled = default
-    local frame = Instance.new("Frame", tab)
-    frame.Size = UDim2.new(1, -20, 0, 35)
-    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    frame.BorderSizePixel = 0
-    
-    local frameCorner = Instance.new("UICorner", frame)
-    frameCorner.CornerRadius = UDim.new(0, 6)
-
-    local toggleFrame = Instance.new("Frame", frame)
-    toggleFrame.Size = UDim2.new(0, 50, 0, 25)
-    toggleFrame.Position = UDim2.new(1, -55, 0.5, -12.5)
-    toggleFrame.BackgroundColor3 = toggled and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(60, 60, 60)
-    toggleFrame.BorderSizePixel = 0
-    
-    local toggleCorner = Instance.new("UICorner", toggleFrame)
-    toggleCorner.CornerRadius = UDim.new(1, 0)
-
-    local toggleButton = Instance.new("Frame", toggleFrame)
-    toggleButton.Size = UDim2.new(0, 21, 0, 21)
-    toggleButton.Position = toggled and UDim2.new(1, -23, 0.5, -10.5) or UDim2.new(0, 2, 0.5, -10.5)
-    toggleButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    toggleButton.BorderSizePixel = 0
-    
-    local buttonCorner = Instance.new("UICorner", toggleButton)
-    buttonCorner.CornerRadius = UDim.new(1, 0)
-
-    local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -65, 1, 0)
-    label.Position = UDim2.new(0, 10, 0, 0)
-    label.Text = text
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(220, 220, 220)
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local clickBtn = Instance.new("TextButton", frame)
-    clickBtn.Size = UDim2.new(1, 0, 1, 0)
-    clickBtn.Text = ""
-    clickBtn.BackgroundTransparency = 1
-
-    clickBtn.MouseButton1Click:Connect(function()
-        toggled = not toggled
-        
-        local colorTween = TweenService:Create(toggleFrame, tweenInfo, {
-            BackgroundColor3 = toggled and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(60, 60, 60)
-        })
-        local positionTween = TweenService:Create(toggleButton, tweenInfo, {
-            Position = toggled and UDim2.new(1, -23, 0.5, -10.5) or UDim2.new(0, 2, 0.5, -10.5)
-        })
-        
-        colorTween:Play()
-        positionTween:Play()
-        pcall(callback, toggled)
-    end)
-    
-    return frame
-end
-
--- ELEMENT: Slider
-function UGINITY:CreateSlider(tab, name, min, max, default, callback)
-    local frame = Instance.new("Frame", tab)
-    frame.Size = UDim2.new(1, -20, 0, 50)
-    frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    frame.BorderSizePixel = 0
-    
-    local frameCorner = Instance.new("UICorner", frame)
-    frameCorner.CornerRadius = UDim.new(0, 6)
-
-    local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -10, 0, 20)
-    label.Position = UDim2.new(0, 10, 0, 5)
-    label.Text = name .. ": " .. default
-    label.TextColor3 = Color3.fromRGB(220, 220, 220)
-    label.Font = Enum.Font.Gotham
-    label.TextSize = 13
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local sliderTrack = Instance.new("Frame", frame)
-    sliderTrack.Size = UDim2.new(1, -20, 0, 6)
-    sliderTrack.Position = UDim2.new(0, 10, 0, 30)
-    sliderTrack.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    sliderTrack.BorderSizePixel = 0
-    
-    local trackCorner = Instance.new("UICorner", sliderTrack)
-    trackCorner.CornerRadius = UDim.new(1, 0)
-
-    local sliderFill = Instance.new("Frame", sliderTrack)
-    sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-    sliderFill.BorderSizePixel = 0
-    
-    local fillCorner = Instance.new("UICorner", sliderFill)
-    fillCorner.CornerRadius = UDim.new(1, 0)
-
-    local sliderButton = Instance.new("Frame", sliderTrack)
-    sliderButton.Size = UDim2.new(0, 14, 0, 14)
-    sliderButton.Position = UDim2.new((default - min) / (max - min), -7, 0.5, -7)
-    sliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    sliderButton.BorderSizePixel = 0
-    
-    local buttonCorner = Instance.new("UICorner", sliderButton)
-    buttonCorner.CornerRadius = UDim.new(1, 0)
-
-    local dragging = false
-    local connection
-
-    sliderTrack.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            connection = UIS.InputChanged:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    local scale = math.clamp((input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X, 0, 1)
-                    local value = math.floor(min + (max - min) * scale)
-                    
-                    sliderFill.Size = UDim2.new(scale, 0, 1, 0)
-                    sliderButton.Position = UDim2.new(scale, -7, 0.5, -7)
-                    label.Text = name .. ": " .. value
-                    pcall(callback, value)
-                end
-            end)
-        end
-    end)
-
-    UIS.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and dragging then
-            dragging = false
-            if connection then
-                connection:Disconnect()
-            end
-        end
-    end)
-    
-    return frame
-end
-
--- Open/Close Animation
-local isOpen = false
-
-local function toggleGUI()
-    isOpen = not isOpen
-    
-    if isOpen then
-        Main.Visible = true
-        Main.Size = UDim2.new(0, 0, 0, 0)
-        Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-        
-        local openTween = TweenService:Create(Main, tweenInfo, {
-            Size = UDim2.new(0, 520, 0, 340),
-            Position = UDim2.new(0.5, -260, 0.5, -170)
-        })
-        openTween:Play()
-        
-        -- Button animation
-        local btnTween = TweenService:Create(btnText, tweenInfo, {
-            TextColor3 = Color3.fromRGB(0, 150, 255)
-        })
-        btnTween:Play()
-    else
-        local closeTween = TweenService:Create(Main, tweenInfo, {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0)
-        })
-        closeTween:Play()
-        
-        closeTween.Completed:Connect(function()
-            Main.Visible = false
-        end)
-        
-        -- Button animation
-        local btnTween = TweenService:Create(btnText, tweenInfo, {
-            TextColor3 = Color3.fromRGB(255, 255, 255)
-        })
-        btnTween:Play()
+    -- Update particles
+    for _, particle in pairs(particles) do
+        particle.BackgroundColor3 = theme.glow
     end
 end
 
--- Button connections
-openBtn.MouseButton1Click:Connect(toggleGUI)
-closeBtn.MouseButton1Click:Connect(toggleGUI)
-minBtn.MouseButton1Click:Connect(toggleGUI)
+function updateTextColor()
+    title.TextColor3 = TEXT_COLORS[currentTextColor]
+    mainText.TextColor3 = TEXT_COLORS[currentTextColor]
+end
 
--- Floating animation for the button
-local floatTween = TweenService:Create(openBtn, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-    Position = UDim2.new(0, 30, 0.5, -25)
-})
-floatTween:Play()
+function switchTab(newTab)
+    if currentTab == newTab then return end
+    
+    -- Get current and new content
+    local currentContent = currentTab == "Welcome" and welcomeContent or 
+                          currentTab == "Settings" and settingsContent or aboutContent
+    local newContent = newTab == "Welcome" and welcomeContent or 
+                      newTab == "Settings" and settingsContent or aboutContent
+    
+    -- Animate out current tab
+    TweenService:Create(currentContent, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        Position = UDim2.new(-1, 0, 0, 0)
+    }):Play()
+    
+    -- Update current tab
+    currentTab = newTab
+    
+    -- Animate in new tab
+    newContent.Position = UDim2.new(1, 0, 0, 0)
+    newContent.Visible = true
+    
+    TweenService:Create(newContent, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        Position = UDim2.new(0, 0, 0, 0)
+    }):Play()
+    
+    -- Hide old content after animation
+    spawn(function()
+        wait(0.3)
+        currentContent.Visible = false
+        currentContent.Position = UDim2.new(0, 0, 0, 0)
+    end)
+    
+    updateTheme()
+end
 
-return UGINITY
+-- Tab functionality
+for tabName, button in pairs(tabButtons) do
+    button.MouseButton1Click:Connect(function()
+        switchTab(tabName)
+    end)
+end
+
+-- Ultimate animations
+spawn(function()
+    while gui.Parent do
+        -- Glow pulsing
+        TweenService:Create(glowFrame, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            BackgroundTransparency = 0.6
+        }):Play()
+        wait(2)
+        TweenService:Create(glowFrame, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            BackgroundTransparency = 0.9
+        }):Play()
+        wait(2)
+    end
+end)
+
+-- Particle animation
+spawn(function()
+    while gui.Parent do
+        for _, particle in pairs(particles) do
+            if particle.Parent then
+                local newX = math.random() * 0.8 + 0.1
+                local newY = math.random() * 0.8 + 0.1
+                
+                TweenService:Create(particle, TweenInfo.new(
+                    math.random(30, 60) / 10,
+                    Enum.EasingStyle.Sine
+                ), {
+                    Position = UDim2.new(newX, 0, newY, 0),
+                    BackgroundTransparency = math.random(60, 95) / 100
+                }):Play()
+            end
+        end
+        wait(3)
+    end
+end)
+
+-- Text pulsing
+spawn(function()
+    while gui.Parent do
+        TweenService:Create(mainText, TweenInfo.new(1.5, Enum.EasingStyle.Sine), {
+            TextSize = 52
+        }):Play()
+        wait(1.5)
+        TweenService:Create(mainText, TweenInfo.new(1.5, Enum.EasingStyle.Sine), {
+            TextSize = 48
+        }):Play()
+        wait(1.5)
+    end
+end)
+
+-- Initialize
+updateTheme()
+updateTextColor()
+
+-- Epic entrance animation
+mainContainer.Size = UDim2.new(0, 0, 0, 0)
+mainContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+
+TweenService:Create(mainContainer, TweenInfo.new(1.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0, 900, 0, 700),
+    Position = UDim2.new(0.5, -450, 0.5, -350)
+}):Play()
+
+print("🔥 UGINITY ULTIMATE EDITION LOADED! 🔥")
+print("💀 MOST POWERFUL UI EVER CREATED 💀")
+print("👑 Created by k1ngBloodit 👑")
